@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 
 public class InsertIntoListStepDefs {
     private DoublyLinkedList list;
-    
+
 
     @Before
     public void initialization() {
