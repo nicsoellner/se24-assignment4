@@ -1,9 +1,11 @@
 package de.unibayreuth.se.teaching.list.api.controller;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.unibayreuth.se.teaching.list.api.dto.ListElementDto;
 import de.unibayreuth.se.teaching.list.business.ports.ListService;
 import de.unibayreuth.se.teaching.list.business.ports.Value;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
+
+@JsonSerialize
+class EmptyJsonResponse{}
 
 @Controller
 @RequiredArgsConstructor
@@ -41,9 +47,14 @@ public class ListController {
     }
 
     @DeleteMapping(value = "/list")
-    public ResponseEntity<Void> deleteElement(@RequestBody ListElementDto element) {
-        listService.remove(toValue(element));
-        return ResponseEntity.noContent().build(); // Respond with HTTP 204 No Content
+    public ResponseEntity<List<ListElementDto>> delete() {
+        listService.delete();
+        return ResponseEntity.ok(listService.get().stream()
+                // this::toDto is short for "apply that method to all elements in the stream"
+                // in this case: map(element -> toDto(element)
+                .map(this::toDto)
+                .toList()
+        );
     }
     /**
      * Mapper function to convert a Value to a ListElementDto.
